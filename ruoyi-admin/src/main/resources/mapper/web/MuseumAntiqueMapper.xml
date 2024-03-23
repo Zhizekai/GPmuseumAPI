@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.web.mapper.MuseumAntiqueMapper">
+    
+    <resultMap type="MuseumAntique" id="MuseumAntiqueResult">
+        <result property="antiqueId"    column="antique_id"    />
+        <result property="antiqueImg"    column="antique_img"    />
+        <result property="antiqueTitle"    column="antique_title"    />
+        <result property="antiqueName"    column="antique_name"    />
+        <result property="antiquePv"    column="antique_pv"    />
+        <result property="antiqueAddress"    column="antique_address"    />
+        <result property="antiqueRecommendCount"    column="antique_recommend_count"    />
+        <result property="antiqueCollectCount"    column="antique_collect_count"    />
+        <result property="antiqueWishCount"    column="antique_wish_count"    />
+        <result property="antiqueInformation"    column="antique_information"    />
+        <result property="antiqueStatus"    column="antique_status"    />
+        <result property="antiquePraise"    column="antique_praise"    />
+        <result property="collectId" column="collect_id"/>
+        <result property="createTime"    column="create_time"    />
+        <result property="modifiedTime"    column="modified_time"    />
+        <result property="antiqueCategoryId" column="category_id" />
+        <result property="categoryName" column="category_name" />
+    </resultMap>
+
+    <sql id="selectMuseumAntiqueVo">
+        select antique_id, antique_img, antique_title, antique_name,
+               antique_pv, antique_address, antique_recommend_count,
+               antique_collect_count, antique_wish_count, antique_information,
+               antique_status, antique_praise, create_time, modified_time from museum_antique
+    </sql>
+
+    <!-- 查找古董列表-->
+    <select id="selectMuseumAntiqueList" parameterType="MuseumAntique" resultMap="MuseumAntiqueResult">
+        SELECT
+        museum_antique.antique_id,
+        antique_img,
+        antique_title,
+        antique_name,
+        antique_pv,
+        antique_address,
+        antique_recommend_count,
+        antique_collect_count,
+        antique_wish_count,
+        antique_information,
+        antique_status,
+        antique_praise,
+        museum_antique.create_time,
+        museum_antique.modified_time,
+        museum_category.category_id,
+        museum_category.category_name,
+        tag_id
+        FROM
+        museum_antique
+        LEFT JOIN museum_antique_and_category ON museum_antique.antique_id = museum_antique_and_category.antique_id
+        LEFT JOIN museum_category ON museum_category.category_id = museum_antique_and_category.category_id
+        LEFT JOIN museum_antique_and_tag ON museum_antique_and_tag.antique_id = museum_antique.antique_id
+        <where>
+            <if test="antiqueTitle != null  and antiqueTitle != ''"> and antique_title = #{antiqueTitle}</if>
+            <if test="antiqueName != null  and antiqueName != ''"> and antique_name like concat('%', #{antiqueName}, '%')</if>
+            <if test="tagId != null  and tagId != ''"> and tag_id = #{tagId} </if>
+            <if test="antiqueInformation != null  and antiqueInformation != ''"> and antique_information = #{antiqueInformation}</if>
+            <if test="antiqueStatus != null  and antiqueStatus != ''"> and antique_status = #{antiqueStatus}</if>
+            <if test="antiqueCategoryId != null and antiqueCategoryId != ''"> and museum_antique_and_category.category_id = #{antiqueCategoryId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginModifiedTime != null and params.beginModifiedTime != '' and params.endModifiedTime != null and params.endModifiedTime != ''"> and modified_time between #{params.beginModifiedTime} and #{params.endModifiedTime}</if>
+        </where>
+
+    </select>
+
+    <!-- 获取古董详细信息-->
+    <select id="selectMuseumAntiqueByAntiqueId" parameterType="Integer" resultMap="MuseumAntiqueResult">
+        SELECT
+            museum_antique.antique_id,
+            antique_img,
+            antique_title,
+            antique_name,
+            antique_pv,
+            antique_address,
+            antique_recommend_count,
+            antique_collect_count,
+            antique_wish_count,
+            antique_information,
+            antique_status,
+            antique_praise,
+            museum_category.category_id,
+            museum_category.category_name
+        FROM
+            museum_antique
+                INNER JOIN museum_antique_and_category ON museum_antique.antique_id = museum_antique_and_category.antique_id
+                INNER JOIN museum_category ON museum_antique_and_category.category_id = museum_category.category_id
+        where museum_antique.antique_id = #{antiqueId}
+    </select>
+        
+    <insert id="insertMuseumAntique" parameterType="MuseumAntique" useGeneratedKeys="true" keyProperty="antiqueId">
+        insert into museum_antique
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="antiqueImg != null">antique_img,</if>
+            <if test="antiqueTitle != null">antique_title,</if>
+            <if test="antiqueName != null">antique_name,</if>
+            <if test="antiquePv != null">antique_pv,</if>
+            <if test="antiqueAddress != null">antique_address,</if>
+            <if test="antiqueRecommendCount != null">antique_recommend_count,</if>
+            <if test="antiqueCollectCount != null">antique_collect_count,</if>
+            <if test="antiqueWishCount != null">antique_wish_count,</if>
+            <if test="antiqueInformation != null">antique_information,</if>
+            <if test="antiqueStatus != null">antique_status,</if>
+            <if test="antiquePraise != null">antique_praise,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="antiqueImg != null">#{antiqueImg},</if>
+            <if test="antiqueTitle != null">#{antiqueTitle},</if>
+            <if test="antiqueName != null">#{antiqueName},</if>
+            <if test="antiquePv != null">#{antiquePv},</if>
+            <if test="antiqueAddress != null">#{antiqueAddress},</if>
+            <if test="antiqueRecommendCount != null">#{antiqueRecommendCount},</if>
+            <if test="antiqueCollectCount != null">#{antiqueCollectCount},</if>
+            <if test="antiqueWishCount != null">#{antiqueWishCount},</if>
+            <if test="antiqueInformation != null">#{antiqueInformation},</if>
+            <if test="antiqueStatus != null">#{antiqueStatus},</if>
+            <if test="antiquePraise != null">#{antiquePraise},</if>
+            <if test="antiqueCategoryId != null">#{antiqueCategoryId},</if>
+         </trim>
+    </insert>
+
+    <update id="addAntiqueCollectCount" parameterType="Integer" >
+
+        UPDATE museum_antique
+        SET museum_antique.antique_collect_count = museum_antique.antique_collect_count + 1
+        WHERE
+            museum_antique.antique_id = #{antiqueId}
+    </update>
+
+    <update id="updateMuseumAntique" parameterType="MuseumAntique">
+        update museum_antique
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="antiqueImg != null">antique_img = #{antiqueImg},</if>
+            <if test="antiqueTitle != null">antique_title = #{antiqueTitle},</if>
+            <if test="antiqueName != null">antique_name = #{antiqueName},</if>
+            <if test="antiquePv != null">antique_pv = #{antiquePv},</if>
+            <if test="antiqueAddress != null">antique_address = #{antiqueAddress},</if>
+            <if test="antiqueRecommendCount != null">antique_recommend_count = #{antiqueRecommendCount},</if>
+            <if test="antiqueCollectCount != null">antique_collect_count = #{antiqueCollectCount},</if>
+            <if test="antiqueWishCount != null">antique_wish_count = #{antiqueWishCount},</if>
+            <if test="antiqueInformation != null">antique_information = #{antiqueInformation},</if>
+            <if test="antiqueStatus != null">antique_status = #{antiqueStatus},</if>
+            <if test="antiquePraise != null">antique_praise = #{antiquePraise},</if>
+        </trim>
+        where antique_id = #{antiqueId}
+    </update>
+
+    <delete id="deleteMuseumAntiqueByAntiqueId" parameterType="Integer">
+        delete from museum_antique where antique_id = #{antiqueId}
+    </delete>
+
+    <delete id="deleteMuseumAntiqueByAntiqueIds" parameterType="String">
+        delete from museum_antique where antique_id in 
+        <foreach item="antiqueId" collection="array" open="(" separator="," close=")">
+            #{antiqueId}
+        </foreach>
+    </delete>
+</mapper>

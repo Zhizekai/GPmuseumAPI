@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.web.mapper.MuseumCommentMapper">
+    
+    <resultMap type="MuseumComment" id="MuseumCommentResult">
+        <result property="commentId"    column="comment_id"    />
+        <result property="commentContent"    column="comment_content"    />
+        <result property="commentLikeCount"    column="comment_like_count"    />
+        <result property="commentUserId"    column="comment_user_id"    />
+        <result property="commentAntiqueId"    column="comment_antique_id"    />
+        <result property="createTime" column="create_time" />
+        <result property="modifiedTime"    column="modified_time"    />
+
+        <association property="museumUser" resultMap="com.ruoyi.web.mapper.MuseumUserMapper.MuseumUserResult" />
+    </resultMap>
+
+    <sql id="selectMuseumCommentVo">
+        select comment_id, comment_content, comment_like_count, comment_user_id, comment_antique_id ,
+               create_time, modified_time from museum_comment
+    </sql>
+
+    <!-- 获取古董评论列表-->
+    <select id="selectMuseumCommentList" parameterType="MuseumComment" resultMap="MuseumCommentResult">
+        SELECT comment_id, comment_content, museum_user.user_id,
+               user_name, comment_user_id, comment_antique_id ,
+               create_time, modified_time
+        FROM museum_comment
+        INNER JOIN museum_user ON museum_comment.comment_user_id = museum_user.user_id
+        <where>  
+            <if test="commentContent != null  and commentContent != ''"> and comment_content = #{commentContent}</if>
+            <if test="commentLikeCount != null "> and comment_like_count = #{commentLikeCount}</if>
+            <if test="commentUserId != null and commentUserId != '' "> and museum_user.user_id = #{commentUserId}</if>
+            <if test="commentAntiqueId != null and commentAntiqueId != '' ">and comment_antique_id = #{commentAntiqueId}</if>
+            <if test="params.beginCommentUserId != null and params.beginCommentUserId != '' and params.endCommentUserId != null and params.endCommentUserId != ''"> and comment_user_id between #{params.beginCommentUserId} and #{params.endCommentUserId}</if>
+            <if test="params.beginCommentAntiqueId != null and params.beginCommentAntiqueId != '' and params.endCommentAntiqueId != null and params.endCommentAntiqueId != ''"> and comment_antique_id between #{params.beginCommentAntiqueId} and #{params.endCommentAntiqueId}</if>
+        </where>
+    </select>
+    
+    <select id="selectMuseumCommentByCommentId" parameterType="Integer" resultMap="MuseumCommentResult">
+        <include refid="selectMuseumCommentVo"/>
+        where comment_id = #{commentId}
+    </select>
+        
+    <insert id="insertMuseumComment" parameterType="MuseumComment" useGeneratedKeys="true" keyProperty="commentId">
+        insert into museum_comment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="commentContent != null">comment_content,</if>
+            <if test="commentLikeCount != null">comment_like_count,</if>
+            <if test="commentUserId != null">comment_user_id,</if>
+            <if test="commentAntiqueId != null">comment_antique_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="commentContent != null">#{commentContent},</if>
+            <if test="commentLikeCount != null">#{commentLikeCount},</if>
+            <if test="commentUserId != null">#{commentUserId},</if>
+            <if test="commentAntiqueId != null">#{commentAntiqueId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMuseumComment" parameterType="MuseumComment">
+        update museum_comment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="commentContent != null">comment_content = #{commentContent},</if>
+            <if test="commentLikeCount != null">comment_like_count = #{commentLikeCount},</if>
+            <if test="commentUserId != null">comment_user_id = #{commentUserId},</if>
+            <if test="commentAntiqueId != null">comment_antique_id = #{commentAntiqueId},</if>
+        </trim>
+        where comment_id = #{commentId}
+    </update>
+
+    <delete id="deleteMuseumCommentByCommentId" parameterType="Integer">
+        delete from museum_comment where comment_id = #{commentId}
+    </delete>
+
+    <delete id="deleteMuseumCommentByCommentIds" parameterType="String">
+        delete from museum_comment where comment_id in 
+        <foreach item="commentId" collection="array" open="(" separator="," close=")">
+            #{commentId}
+        </foreach>
+    </delete>
+</mapper>

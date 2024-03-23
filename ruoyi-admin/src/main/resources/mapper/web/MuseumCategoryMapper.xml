@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.web.mapper.MuseumCategoryMapper">
+    
+    <resultMap type="MuseumCategory" id="MuseumCategoryResult">
+        <result property="categoryId"    column="category_id"    />
+        <result property="categoryName"    column="category_name"    />
+        <result property="categoryDescription"    column="category_description"    />
+        <result property="categoryStatus"    column="category_status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="modifiedTime"    column="modified_time"    />
+    </resultMap>
+
+    <sql id="selectMuseumCategoryVo">
+        select category_id, category_name, category_description, category_status,create_time ,modified_time from museum_category
+    </sql>
+
+    <!--获取分类列表-->
+    <select id="selectMuseumCategoryList" parameterType="MuseumCategory" resultMap="MuseumCategoryResult">
+        <include refid="selectMuseumCategoryVo"/>
+        <where>  
+            <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+            <if test="categoryDescription != null  and categoryDescription != ''"> and category_description = #{categoryDescription}</if>
+            <if test="categoryStatus != null  and categoryStatus != ''"> and category_status = #{categoryStatus}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginModifiedTime != null and params.beginModifiedTime != '' and params.endModifiedTime != null and params.endModifiedTime != ''"> and modified_time between #{params.beginModifiedTime} and #{params.endModifiedTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectMuseumCategoryByCategoryId" parameterType="Integer" resultMap="MuseumCategoryResult">
+        <include refid="selectMuseumCategoryVo"/>
+        where category_id = #{categoryId}
+    </select>
+        
+    <insert id="insertMuseumCategory" parameterType="MuseumCategory" useGeneratedKeys="true" keyProperty="categoryId">
+        insert into museum_category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryName != null">category_name,</if>
+            <if test="categoryDescription != null">category_description,</if>
+            <if test="categoryStatus != null">category_status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryName != null">#{categoryName},</if>
+            <if test="categoryDescription != null">#{categoryDescription},</if>
+            <if test="categoryStatus != null">#{categoryStatus},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMuseumCategory" parameterType="MuseumCategory">
+        update museum_category
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryName != null">category_name = #{categoryName},</if>
+            <if test="categoryDescription != null">category_description = #{categoryDescription},</if>
+            <if test="categoryStatus != null">category_status = #{categoryStatus},</if>
+        </trim>
+        where category_id = #{categoryId}
+    </update>
+
+    <delete id="deleteMuseumCategoryByCategoryId" parameterType="Integer">
+        delete from museum_category where category_id = #{categoryId}
+    </delete>
+
+    <delete id="deleteMuseumCategoryByCategoryIds" parameterType="String">
+        delete from museum_category where category_id in 
+        <foreach item="categoryId" collection="array" open="(" separator="," close=")">
+            #{categoryId}
+        </foreach>
+    </delete>
+</mapper>

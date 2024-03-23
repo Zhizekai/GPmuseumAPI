@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.web.mapper.MuseumCollectMapper">
+    
+    <resultMap type="MuseumCollect" id="MuseumCollectResult">
+        <result property="collectId"    column="collect_id"    />
+        <result property="antiqueId"    column="antique_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="modifiedTime"    column="modified_time"    />
+    </resultMap>
+
+    <sql id="selectMuseumCollectVo">
+        select collect_id, antique_id, user_id, create_time, modified_time from museum_collect
+    </sql>
+
+    <select id="selectMuseumCollectList" parameterType="MuseumCollect" resultMap="MuseumCollectResult">
+        <include refid="selectMuseumCollectVo"/>
+        <where>  
+            <if test="antiqueId != null "> and antique_id = #{antiqueId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginModifiedTime != null and params.beginModifiedTime != '' and params.endModifiedTime != null and params.endModifiedTime != ''"> and modified_time between #{params.beginModifiedTime} and #{params.endModifiedTime}</if>
+        </where>
+    </select>
+
+    <!--获取用户收藏列表-->
+
+    <select id="selectCollectionByUserId" parameterType="Long" resultMap="com.ruoyi.web.mapper.MuseumAntiqueMapper.MuseumAntiqueResult">
+        SELECT
+            museum_antique.* , museum_collect.collect_id
+        FROM
+            museum_antique
+                INNER JOIN museum_collect ON museum_antique.antique_id = museum_collect.antique_id
+        WHERE museum_collect.user_id = #{userId}
+    </select>
+    
+    <select id="selectMuseumCollectByCollectId" parameterType="Long" resultMap="MuseumCollectResult">
+        <include refid="selectMuseumCollectVo"/>
+        where collect_id = #{collectId}
+    </select>
+        
+    <insert id="insertMuseumCollect" parameterType="MuseumCollect" useGeneratedKeys="true" keyProperty="collectId">
+        insert into museum_collect
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="antiqueId != null">antique_id,</if>
+            <if test="userId != null">user_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="antiqueId != null">#{antiqueId},</if>
+            <if test="userId != null">#{userId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMuseumCollect" parameterType="MuseumCollect">
+        update museum_collect
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="antiqueId != null">antique_id = #{antiqueId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+        </trim>
+        where collect_id = #{collectId}
+    </update>
+
+    <delete id="deleteMuseumCollectByCollectId" parameterType="Long">
+        delete from museum_collect where collect_id = #{collectId}
+    </delete>
+
+    <delete id="deleteMuseumCollectByCollectIds" parameterType="String">
+        delete from museum_collect where collect_id in 
+        <foreach item="collectId" collection="array" open="(" separator="," close=")">
+            #{collectId}
+        </foreach>
+    </delete>
+</mapper>

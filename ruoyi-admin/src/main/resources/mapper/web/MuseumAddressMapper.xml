@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.web.mapper.MuseumAddressMapper">
+    
+    <resultMap type="MuseumAddress" id="MuseumAddressResult">
+        <result property="addressId"    column="address_id"    />
+        <result property="name"    column="name"    />
+        <result property="mobile"    column="mobile"    />
+        <result property="description"    column="description"    />
+        <result property="userId"    column="user_id"    />
+        <result property="def"    column="def"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="modifiedTime"    column="modified_time"    />
+    </resultMap>
+
+    <sql id="selectMuseumAddressVo">
+        select address_id, name, mobile, description, user_id, def, create_time,
+               modified_time from museum_address
+    </sql>
+
+    <select id="selectMuseumAddressList" parameterType="MuseumAddress" resultMap="MuseumAddressResult">
+        <include refid="selectMuseumAddressVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="mobile != null  and mobile != ''"> and mobile = #{mobile}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="def != null  and def != ''"> and def = #{def}</if>
+            <if test="modifiedTime != null "> and modified_time = #{modifiedTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectMuseumAddressByAddressId" parameterType="Long" resultMap="MuseumAddressResult">
+        <include refid="selectMuseumAddressVo"/>
+        where address_id = #{addressId}
+    </select>
+        
+    <insert id="insertMuseumAddress" parameterType="MuseumAddress" useGeneratedKeys="true" keyProperty="addressId">
+        insert into museum_address
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">name,</if>
+            <if test="mobile != null and mobile != ''">mobile,</if>
+            <if test="description != null and description != ''">description,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="def != null and def != ''">def,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="modifiedTime != null">modified_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="mobile != null and mobile != ''">#{mobile},</if>
+            <if test="description != null and description != ''">#{description},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="def != null and def != ''">#{def},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="modifiedTime != null">#{modifiedTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMuseumAddress" parameterType="MuseumAddress">
+        update museum_address
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="mobile != null and mobile != ''">mobile = #{mobile},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="def != null and def != ''">def = #{def},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="modifiedTime != null">modified_time = #{modifiedTime},</if>
+        </trim>
+        where address_id = #{addressId}
+    </update>
+
+    <delete id="deleteMuseumAddressByAddressId" parameterType="Long">
+        delete from museum_address where address_id = #{addressId}
+    </delete>
+
+    <delete id="deleteMuseumAddressByAddressIds" parameterType="String">
+        delete from museum_address where address_id in 
+        <foreach item="addressId" collection="array" open="(" separator="," close=")">
+            #{addressId}
+        </foreach>
+    </delete>
+</mapper>

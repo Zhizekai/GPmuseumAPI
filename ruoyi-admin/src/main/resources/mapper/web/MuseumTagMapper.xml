@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.web.mapper.MuseumTagMapper">
+    
+    <resultMap type="MuseumTag" id="MuseumTagResult">
+        <result property="tagId"    column="tag_id"    />
+        <result property="tagTitle"    column="tag_title"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="modifiedTime"    column="modified_time"    />
+    </resultMap>
+
+    <sql id="selectMuseumTagVo">
+        select tag_id, tag_title, create_time, modified_time from museum_tag
+    </sql>
+
+    <select id="selectMuseumTagList" parameterType="MuseumTag" resultMap="MuseumTagResult">
+        <include refid="selectMuseumTagVo"/>
+        <where>  
+            <if test="tagTitle != null  and tagTitle != ''"> and tag_title = #{tagTitle}</if>
+            <if test="params.beginModifiedTime != null and params.beginModifiedTime != '' and params.endModifiedTime != null and params.endModifiedTime != ''"> and modified_time between #{params.beginModifiedTime} and #{params.endModifiedTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectMuseumTagByTagId" parameterType="Long" resultMap="MuseumTagResult">
+        <include refid="selectMuseumTagVo"/>
+        where tag_id = #{tagId}
+    </select>
+        
+    <insert id="insertMuseumTag" parameterType="MuseumTag" useGeneratedKeys="true" keyProperty="tagId">
+        insert into museum_tag
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tagTitle != null">tag_title,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tagTitle != null">#{tagTitle},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMuseumTag" parameterType="MuseumTag">
+        update museum_tag
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tagTitle != null">tag_title = #{tagTitle},</if>
+        </trim>
+        where tag_id = #{tagId}
+    </update>
+
+    <delete id="deleteMuseumTagByTagId" parameterType="Long">
+        delete from museum_tag where tag_id = #{tagId}
+    </delete>
+
+    <delete id="deleteMuseumTagByTagIds" parameterType="String">
+        delete from museum_tag where tag_id in 
+        <foreach item="tagId" collection="array" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+    </delete>
+</mapper>

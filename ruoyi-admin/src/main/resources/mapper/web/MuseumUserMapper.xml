@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.web.mapper.MuseumUserMapper">
+    
+    <resultMap type="MuseumUser" id="MuseumUserResult">
+        <result property="userId"    column="user_id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="userPassword"    column="user_password"    />
+        <result property="userPhone"    column="user_phone"    />
+        <result property="userEmail"    column="user_email"    />
+        <result property="userDescription"    column="user_description"    />
+        <result property="userScore"    column="user_score"    />
+        <result property="userAvatar"    column="user_avatar"    />
+        <result property="userToken"    column="user_token"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="modifiedTime"    column="modified_time"    />
+    </resultMap>
+
+    <sql id="selectMuseumUserVo">
+        select user_id, user_name, user_password, user_phone, user_email, user_description,
+               user_score, user_avatar, user_token, create_time, modified_time
+        from museum_user
+    </sql>
+
+    <select id="selectMuseumUserList" parameterType="MuseumUser" resultMap="MuseumUserResult">
+        <include refid="selectMuseumUserVo"/>
+        <where>  
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="userPhone != null  and userPhone != ''"> and user_phone = #{userPhone}</if>
+            <if test="userEmail != null  and userEmail != ''"> and user_email = #{userEmail}</if>
+            <if test="userDescription != null  and userDescription != ''"> and user_description = #{userDescription}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginModifiedTime != null and params.beginModifiedTime != '' and params.endModifiedTime != null and params.endModifiedTime != ''"> and modified_time between #{params.beginModifiedTime} and #{params.endModifiedTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectMuseumUserByUserId" parameterType="Long" resultMap="MuseumUserResult">
+        <include refid="selectMuseumUserVo"/>
+        where user_id = #{userId}
+    </select>
+        
+    <insert id="insertMuseumUser" parameterType="MuseumUser" useGeneratedKeys="true" keyProperty="userId">
+        insert into museum_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userName != null">user_name,</if>
+            <if test="userPassword != null">user_password,</if>
+            <if test="userPhone != null">user_phone,</if>
+            <if test="userEmail != null">user_email,</if>
+            <if test="userDescription != null">user_description,</if>
+            <if test="userScore != null">user_score,</if>
+            <if test="userAvatar != null">user_avatar,</if>
+            <if test="userToken != null">user_token,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userName != null">#{userName},</if>
+            <if test="userPassword != null">#{userPassword},</if>
+            <if test="userPhone != null">#{userPhone},</if>
+            <if test="userEmail != null">#{userEmail},</if>
+            <if test="userDescription != null">#{userDescription},</if>
+            <if test="userScore != null">#{userScore},</if>
+            <if test="userAvatar != null">#{userAvatar},</if>
+            <if test="userToken != null">#{userToken},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMuseumUser" parameterType="MuseumUser">
+        update museum_user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="userPassword != null">user_password = #{userPassword},</if>
+            <if test="userPhone != null">user_phone = #{userPhone},</if>
+            <if test="userEmail != null">user_email = #{userEmail},</if>
+            <if test="userDescription != null">user_description = #{userDescription},</if>
+            <if test="userScore != null">user_score = #{userScore},</if>
+            <if test="userAvatar != null">user_avatar = #{userAvatar},</if>
+            <if test="userToken != null">user_token = #{userToken},</if>
+        </trim>
+        where user_id = #{userId}
+    </update>
+
+    <delete id="deleteMuseumUserByUserId" parameterType="Long">
+        delete from museum_user where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteMuseumUserByUserIds" parameterType="String">
+        delete from museum_user where user_id in 
+        <foreach item="userId" collection="array" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+</mapper>
