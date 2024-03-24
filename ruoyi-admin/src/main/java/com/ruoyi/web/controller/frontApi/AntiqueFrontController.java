@@ -7,6 +7,8 @@ import com.ruoyi.common.core.domain.petFront.APIResponse;
 import com.ruoyi.common.core.domain.petFront.ResponseCode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Example;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,7 @@ public class AntiqueFrontController {
     @ApiOperation("获取前台古董列表")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public APIResponse list(MuseumAntique museumAntique) {
+        System.out.println("获取参数");
         // 开启分页，并且获取排序方式
         startPage();
         List<MuseumAntique> museumAntiques = museumAntiqueService.selectMuseumAntiqueList(museumAntique);
